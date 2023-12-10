@@ -43,5 +43,20 @@ int main(int argc, char** argv){
         std::cout << "bind() is OK" << std::endl;
     }
 
+    if(listen(serverSocket, 1) == SOCKET_ERROR)
+        std::cout << "listen(): Error listening on socket" << WSAGetLastError() << std::endl;
+    else
+        std::cout << "listen() is OK, I'm waiting for connections..." << std::endl;
+
+    acceptSocket = accept(serverSocket, NULL, NULL);
+    if(acceptSocket == INVALID_SOCKET){
+        std::cout << "accept failed: " << WSAGetLastError() << std::endl;
+        WSACleanup();
+        return -1;
+    }
+    
+    std::cout << "Accepted connection" << std::endl;
+    system("pause");
+    WSACleanup();
     return 0;
 }
