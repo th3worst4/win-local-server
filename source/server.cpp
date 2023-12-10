@@ -1,7 +1,4 @@
-#include <winsock2.h>
-#include <ws2tcpip.h>
-#include <iostream>
-#include <tchar.h>
+#include "includes.hpp"
 
 int main(int argc, char** argv){
     SOCKET serverSocket, acceptSocket;
