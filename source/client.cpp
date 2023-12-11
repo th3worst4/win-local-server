@@ -45,8 +45,8 @@ int main(int argc, char** argv){
     int await = buf[0]-'0'-1;
     ZeroMemory(buf, 4096);
 
+    bool running = true;
     do{
-        
         if(await){
             bytesReceived = recv(clientSocket, buf, 4096, 0);
             if(bytesReceived > 0){
@@ -58,18 +58,26 @@ int main(int argc, char** argv){
             std::cout << "> ";
             getline(std::cin, userInput);
             if(userInput.size() > 0){
-                int sendResult = send(clientSocket, userInput.c_str(), userInput.size() + 1, 0);
-                if(sendResult != SOCKET_ERROR){
-                    ZeroMemory(buf, 4096);
-                
-                }
+                if(userInput[0] == '\\'){
+                    if(userInput == "\\quit"){
+                        std::cout << "quiting the server\n";
+                        running = false;
+                    }else if(userInput == "\\pass"){
+                        std::cout << "passing your turn\n";
+                        userInput = "Pass";
+                    }
+                    int sendResult = send(clientSocket, userInput.c_str(), userInput.size() + 1, 0);
+                    if(sendResult != SOCKET_ERROR){
+                        ZeroMemory(buf, 4096);
+                    }
+                } 
             }
             await = !await;
         }
         
         
         
-    }while(true);
+    }while(running);
 
 
     closesocket(clientSocket);

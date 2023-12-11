@@ -68,14 +68,6 @@ int main(int argc, char** argv){
                     closesocket(sock);
                     FD_CLR(sock, &master);
                 }else{
-                    if(buf[0] == '\\'){
-                        std::string cmd = std::string(buf, bytesIn);
-                        if(cmd == "\\quit"){
-                            running = false;
-                            break;
-                        }
-                        continue;
-                    }
                     for(int i = 0; i < master.fd_count; i++){
                         SOCKET outSock = master.fd_array[i];
                         if(outSock != serverSocket && outSock != sock){
