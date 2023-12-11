@@ -12,9 +12,6 @@ int main(int argc, char** argv){
     if(wsaerr != 0){
         std::cout << "The Winsock dll not found" << std::endl;
         return 0;
-    }else{
-        std::cout << "The Winsock dll found" << std::endl;
-        std::cout << "The status: " << wsaData.szSystemStatus << std::endl;
     }
 
     clientSocket = INVALID_SOCKET;
@@ -24,8 +21,6 @@ int main(int argc, char** argv){
         std::cout << "Error at socket(): " << WSAGetLastError() << std::endl;
         WSACleanup();
         return 0;
-    }else{
-        std::cout << "socket() is OK" << std::endl;
     }
 
     sockaddr_in clientService;
@@ -39,10 +34,45 @@ int main(int argc, char** argv){
         WSACleanup();
         return 0;
     }else{
-        std::cout << "Client: connect() is OK." << std::endl;
         std::cout << "Client: Can start sending and receiving data..." << std::endl;
     }
-    system("pause");
+
+    char buf[4096];
+    std::string userInput;
+
+    int bytesReceived = recv(clientSocket, buf, 4096, 0);
+    std::cout << "SERVER> " << std::string(buf, 0, bytesReceived) << std::endl;
+    int await = buf[0]-'0'-1;
+    ZeroMemory(buf, 4096);
+
+    do{
+        
+        if(await){
+            bytesReceived = recv(clientSocket, buf, 4096, 0);
+            if(bytesReceived > 0){
+                std::cout << std::string(buf, 0, bytesReceived) << std::endl;
+                ZeroMemory(buf, 4096);
+            }
+            await = !await;
+        }else{
+            std::cout << "> ";
+            getline(std::cin, userInput);
+            if(userInput.size() > 0){
+                int sendResult = send(clientSocket, userInput.c_str(), userInput.size() + 1, 0);
+                if(sendResult != SOCKET_ERROR){
+                    ZeroMemory(buf, 4096);
+                
+                }
+            }
+            await = !await;
+        }
+        
+        
+        
+    }while(true);
+
+
+    closesocket(clientSocket);
     WSACleanup();
     return 0;
 }

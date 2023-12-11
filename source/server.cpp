@@ -10,9 +10,6 @@ int main(int argc, char** argv){
     if(wsaerr != 0){
         std::cout << "The Winsock dll not found" << std::endl;
         return 0;
-    }else{
-        std::cout << "The Winsock dll found" << std::endl;
-        std::cout << "The status:" << wsaData.szSystemStatus << std::endl;
     }
 
     serverSocket = INVALID_SOCKET;
@@ -22,8 +19,6 @@ int main(int argc, char** argv){
         std::cout << "Error at socket()" << WSAGetLastError() << std::endl;
         WSACleanup();
         return 0;
-    }else{
-        std::cout << "socket() is OK" << std::endl;
     }
 
     sockaddr_in service;
@@ -36,24 +31,81 @@ int main(int argc, char** argv){
         closesocket(serverSocket);
         WSACleanup();
         return 0;
-    }else{
-        std::cout << "bind() is OK" << std::endl;
     }
 
     if(listen(serverSocket, 1) == SOCKET_ERROR)
         std::cout << "listen(): Error listening on socket" << WSAGetLastError() << std::endl;
     else
-        std::cout << "listen() is OK, I'm waiting for connections..." << std::endl;
+        std::cout << "I'm waiting for connections" << std::endl;
 
-    acceptSocket = accept(serverSocket, NULL, NULL);
-    if(acceptSocket == INVALID_SOCKET){
-        std::cout << "accept failed: " << WSAGetLastError() << std::endl;
-        WSACleanup();
-        return -1;
+    fd_set master;
+    FD_ZERO(&master);
+    FD_SET(serverSocket, &master);
+
+    bool running = 1;
+    std::string welcomeMsg = "1 \n";
+
+    while(running){
+        fd_set copy = master;
+        int socketCout = select(0, &copy, nullptr, nullptr, nullptr);
+
+        for(int i = 0; i < socketCout; i++){
+            SOCKET sock = copy.fd_array[i];
+            if(sock == serverSocket){
+                SOCKET client = accept(serverSocket, nullptr, nullptr);
+                FD_SET(client, &master);
+                send(client, welcomeMsg.c_str(), welcomeMsg.size() + 1, 0);
+                welcomeMsg = "2 \n";
+                std::ostringstream logreg;
+                logreg << sock;
+                std::cout << logreg.str() << " is connected\n";
+            }else{
+                char buf[4096];
+                ZeroMemory(buf, 4096);
+
+                int bytesIn = recv(sock, buf, 4096, 0);
+                if(bytesIn <= 0){
+                    closesocket(sock);
+                    FD_CLR(sock, &master);
+                }else{
+                    if(buf[0] == '\\'){
+                        std::string cmd = std::string(buf, bytesIn);
+                        if(cmd == "\\quit"){
+                            running = false;
+                            break;
+                        }
+                        continue;
+                    }
+                    for(int i = 0; i < master.fd_count; i++){
+                        SOCKET outSock = master.fd_array[i];
+                        if(outSock != serverSocket && outSock != sock){
+                            std::ostringstream ss;
+                            ss << "SOCKET #" << sock << ": " << buf << "\r\n";
+                            std::string strOut = ss.str();
+
+                            send(outSock, strOut.c_str(), strOut.size() + 1, 0);
+                        }
+                    }
+                }
+            }
+        }
     }
-    
-    std::cout << "Accepted connection" << std::endl;
-    system("pause");
+
+    FD_CLR(serverSocket, &master);
+    closesocket(serverSocket);
+
+    std::string msg = "Server is shutting down.\r\n";
+
+    while(master.fd_count > 0){
+        SOCKET sock = master.fd_array[0];
+
+        send(sock, msg.c_str(), msg.size() + 1, 0);
+
+        FD_CLR(sock, &master);
+        closesocket(sock);
+    }
+
     WSACleanup();
+    system("pause");
     return 0;
 }
