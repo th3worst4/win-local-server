@@ -1,5 +1,40 @@
 #include "includes.hpp"
 
+void receivemsg(SOCKET clientSocket, char buf[4096]){
+    while(true){
+        int bytesReceived = recv(clientSocket, buf, 4096, 0);
+        if(bytesReceived > 0){
+            std::cout << std::string(buf, 0, bytesReceived) << std::endl;
+            ZeroMemory(buf, 4096);
+        }
+    }
+}
+
+bool sendmsg(SOCKET clientSocket, char buf[4096]){
+    while(true){
+        std::string userInput;
+        std::cout << "> ";
+        getline(std::cin, userInput);
+        if(userInput.size() > 0){
+            if(userInput[0] == '\\'){
+                if(userInput == "\\quit"){
+                    std::cout << "quiting the server\n";
+                    return false;
+                }else if(userInput == "\\pass"){
+                    std::cout << "passing your turn\n";
+                    userInput = "Pass";
+                }
+                int sendResult = send(clientSocket, userInput.c_str(), userInput.size() + 1, 0);
+                if(sendResult != SOCKET_ERROR){
+                    ZeroMemory(buf, 4096);
+                }
+            } 
+        }
+    }
+    return true;
+}
+
+
 int main(int argc, char** argv){
     SOCKET clientSocket;
     int port = 55555;
@@ -42,44 +77,20 @@ int main(int argc, char** argv){
 
     int bytesReceived = recv(clientSocket, buf, 4096, 0);
     std::cout << "SERVER> " << std::string(buf, 0, bytesReceived) << std::endl;
-    int await = buf[0]-'0'-1;
+    //int await = buf[0]-'0'-1;
     ZeroMemory(buf, 4096);
 
     bool running = true;
-    do{
-        if(await){
-            bytesReceived = recv(clientSocket, buf, 4096, 0);
-            if(bytesReceived > 0){
-                std::cout << std::string(buf, 0, bytesReceived) << std::endl;
-                ZeroMemory(buf, 4096);
-            }
-            await = !await;
-        }else{
-            std::cout << "> ";
-            getline(std::cin, userInput);
-            if(userInput.size() > 0){
-                if(userInput[0] == '\\'){
-                    if(userInput == "\\quit"){
-                        std::cout << "quiting the server\n";
-                        running = false;
-                    }else if(userInput == "\\pass"){
-                        std::cout << "passing your turn\n";
-                        userInput = "Pass";
-                    }
-                    int sendResult = send(clientSocket, userInput.c_str(), userInput.size() + 1, 0);
-                    if(sendResult != SOCKET_ERROR){
-                        ZeroMemory(buf, 4096);
-                    }
-                } 
-            }
-            await = !await;
-        }
-        
-        
-        
-    }while(running);
+    std::thread thread1;
+    std::thread thread2;
 
 
+    thread1 = std::thread(receivemsg, clientSocket, buf);
+    thread2 = std::thread(sendmsg, clientSocket, buf);
+
+
+    thread1.join();
+    thread2.join();
     closesocket(clientSocket);
     WSACleanup();
     return 0;

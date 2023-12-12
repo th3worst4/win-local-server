@@ -43,7 +43,7 @@ int main(int argc, char** argv){
     FD_SET(serverSocket, &master);
 
     bool running = 1;
-    std::string welcomeMsg = "1 \n";
+    std::string welcomeMsg = "Welcome\r\n";
 
     while(running){
         fd_set copy = master;
@@ -55,7 +55,6 @@ int main(int argc, char** argv){
                 SOCKET client = accept(serverSocket, nullptr, nullptr);
                 FD_SET(client, &master);
                 send(client, welcomeMsg.c_str(), welcomeMsg.size() + 1, 0);
-                welcomeMsg = "2 \n";
                 std::ostringstream logreg;
                 logreg << sock;
                 std::cout << logreg.str() << " is connected\n";
@@ -64,6 +63,7 @@ int main(int argc, char** argv){
                 ZeroMemory(buf, 4096);
 
                 int bytesIn = recv(sock, buf, 4096, 0);
+
                 if(bytesIn <= 0){
                     closesocket(sock);
                     FD_CLR(sock, &master);
@@ -81,6 +81,10 @@ int main(int argc, char** argv){
                 }
             }
         }
+
+
+
+
     }
 
     FD_CLR(serverSocket, &master);

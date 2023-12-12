@@ -4,3 +4,8 @@
 #include <tchar.h>
 #include <sstream>
 #include <string>
+#include <thread>
+#include <chrono>
+#include <future>
+
+using namespace std::chrono_literals;
