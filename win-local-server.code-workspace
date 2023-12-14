@@ -55,6 +55,11 @@
 			"streambuf": "cpp",
 			"typeinfo": "cpp",
 			"sstream": "cpp"
-		}
+		},
+		"cSpell.language": "en,pt-BR",
+		"cSpell.ignoreWords": [
+			"needings",
+			"winsock"
+		]
 	}
 }

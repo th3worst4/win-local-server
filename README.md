@@ -4,9 +4,9 @@ Simple local server made to run on Windows machines. The server's task is been a
 
 ## Why does it run only on Windows?
 
-That's because I'm using the `<winsock2.h>` library. As the name sugests, it's made to create server sockets for Windows machines.
+That's because I'm using the `<winsock2.h>` library. As the name suggests, it's made to create server sockets for Windows machines.
 
-On my recently researchs I found there is some similar library to Linux too. But as my OS is Windows, I see no purpose on not using the Windows library.
+On my recently research I found there is some similar library to Linux too. But as my OS is Windows, I see no purpose on not using the Windows library.
 
 ## Some warnings
 
@@ -20,7 +20,7 @@ This undesired behavior this a consequence of using multi-threading. You can che
 
 The program must be constantly check if new data was received from the server. I made this check code be a separated thread.
 
-This multi-thread code can be seen on [source/client.cpp], in fact, there isn't much code on [source/server.cpp]. I know this may not be a safe approach, write many lines on client side, but this is my first server code, so be less harch ok?
+This multi-thread code can be seen on [source/client.cpp], in fact, there isn't much code on [source/server.cpp]. I know this may not be a safe approach, write many lines on client side, but this is my first server code, so be less harsh ok?
 
 [cpp-networking]: https://github.com/codehoose/cpp-networking/tree/main
 [source/includes.hpp]: source/includes.hpp
