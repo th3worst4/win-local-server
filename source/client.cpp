@@ -1,17 +1,22 @@
 #include "includes.hpp"
 
-void receivemsg(SOCKET clientSocket, char buf[4096]){
-    while(true){
+std::mutex m;
+bool running = true;
+
+void receivemsg(SOCKET clientSocket, char buf[4096]){ 
+    while(running){
         int bytesReceived = recv(clientSocket, buf, 4096, 0);
         if(bytesReceived > 0){
+            m.lock();
             std::cout << std::string(buf, 0, bytesReceived) << std::endl;
             ZeroMemory(buf, 4096);
+            m.unlock();
         }
     }
 }
 
-bool sendmsg(SOCKET clientSocket, char buf[4096]){
-    while(true){
+void sendmsg(SOCKET clientSocket, char buf[4096]){
+    while(running){
         std::string userInput;
         std::cout << "> ";
         getline(std::cin, userInput);
@@ -19,19 +24,20 @@ bool sendmsg(SOCKET clientSocket, char buf[4096]){
             if(userInput[0] == '\\'){
                 if(userInput == "\\quit"){
                     std::cout << "quiting the server\n";
-                    return false;
+                    running = false;
+                    m.unlock();
+                    continue;
                 }else if(userInput == "\\pass"){
                     std::cout << "passing your turn\n";
                     userInput = "Pass";
                 }
-                int sendResult = send(clientSocket, userInput.c_str(), userInput.size() + 1, 0);
-                if(sendResult != SOCKET_ERROR){
-                    ZeroMemory(buf, 4096);
-                }
-            } 
+            }
+            int sendResult = send(clientSocket, userInput.c_str(), userInput.size() + 1, 0);
+            if(sendResult != SOCKET_ERROR){
+                ZeroMemory(buf, 4096);
+            }
         }
     }
-    return true;
 }
 
 
@@ -77,20 +83,17 @@ int main(int argc, char** argv){
 
     int bytesReceived = recv(clientSocket, buf, 4096, 0);
     std::cout << "SERVER> " << std::string(buf, 0, bytesReceived) << std::endl;
-    //int await = buf[0]-'0'-1;
     ZeroMemory(buf, 4096);
 
-    bool running = true;
     std::thread thread1;
     std::thread thread2;
-
 
     thread1 = std::thread(receivemsg, clientSocket, buf);
     thread2 = std::thread(sendmsg, clientSocket, buf);
 
-
     thread1.join();
     thread2.join();
+
     closesocket(clientSocket);
     WSACleanup();
     return 0;
