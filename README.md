@@ -23,3 +23,6 @@ The program must be constantly check if new data was received from the server. I
 This multi-thread code can be seen on [source/client.cpp], in fact, there isn't much code on [source/server.cpp]. I know this may not be a safe approach, write many lines on client side, but this is my first server code, so be less harch ok?
 
 [cpp-networking]: https://github.com/codehoose/cpp-networking/tree/main
+[source/includes.hpp]: source/includes.hpp
+[source/client.cpp]: source/client.cpp
+[source/server.cpp]: source/server.cpp
