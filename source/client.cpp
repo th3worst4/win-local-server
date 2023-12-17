@@ -18,18 +18,13 @@ void receivemsg(SOCKET clientSocket, char buf[4096]){
 void sendmsg(SOCKET clientSocket, char buf[4096]){
     while(running){
         std::string userInput;
-        std::cout << "> ";
         getline(std::cin, userInput);
         if(userInput.size() > 0){
             if(userInput[0] == '\\'){
                 if(userInput == "\\quit"){
                     std::cout << "quiting the server\n";
                     running = false;
-                    m.unlock();
                     continue;
-                }else if(userInput == "\\pass"){
-                    std::cout << "passing your turn\n";
-                    userInput = "Pass";
                 }
             }
             int sendResult = send(clientSocket, userInput.c_str(), userInput.size() + 1, 0);

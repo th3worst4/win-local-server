@@ -72,7 +72,7 @@ int main(int argc, char** argv){
                         SOCKET outSock = master.fd_array[i];
                         if(outSock != serverSocket && outSock != sock){
                             std::ostringstream ss;
-                            ss << "SOCKET #" << sock << ": " << buf << "\r\n";
+                            ss << "SOCKET #" << sock << ": " << buf;
                             std::string strOut = ss.str();
 
                             send(outSock, strOut.c_str(), strOut.size() + 1, 0);
