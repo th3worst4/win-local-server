@@ -81,10 +81,6 @@ int main(int argc, char** argv){
                 }
             }
         }
-
-
-
-
     }
 
     FD_CLR(serverSocket, &master);
@@ -102,6 +98,5 @@ int main(int argc, char** argv){
     }
 
     WSACleanup();
-    system("pause");
     return 0;
 }
